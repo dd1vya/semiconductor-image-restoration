@@ -1,23 +1,17 @@
-# semiconductor-image-restoration
-An AI-based image restoration and super-resolution system designed to recover clean, high-resolution semiconductor inspection images from degraded, noisy, and low-resolution inputs.
+# Semiconductor-image-restoration
 
-The proposed system uses a NAFNet-based restoration architecture enhanced with 2× PixelShuffle super-resolution and global residual learning. A composite L1 + SSIM + LPIPS loss is used to balance pixel-level accuracy, structural preservation, and perceptual quality.
+A NAFNet-based image restoration network enhanced with 2× PixelShuffle super-resolution to remove degradation and recover fine image details.
 
-## Project overview
-Semiconductor inspection images can suffer from noise, speckle degradation, reduced spatial resolution, and loss of fine structural details during image acquisition and processing. These degradations can make small features and defects difficult to inspect accurately.
-The objective of this project is to restore degraded inspection images while:
+## Problem Statement
 
-Preserving genuine image structures
+Semiconductor inspection images can suffer from speckle noise, Gaussian degradation, and spatial resolution loss, obscuring fine defect structures.These degradations can occur in different combinations and orders, reducing image quality and important visual details.
 
-Recovering fine details
+The goal is to reconstruct clean, full-resolution images while preserving critical fine details and avoiding artificial artifacts.
 
-Improving spatial resolution
+The solution must generalize to both in-distribution and unseen image sources.It must also provide fast, efficient inference suitable for GPU-based inspection pipelines.
 
-Reducing noise and degradation
+<img width="799" height="278" alt="image" src="https://github.com/user-attachments/assets/ed9b6c91-13b4-4df2-9c55-f005fcebb7e2" />
 
-Avoiding unnecessary artificial details
-
-Maintaining good computational efficiency
 
 ## Proposed Architecture
 
@@ -77,112 +71,136 @@ This allows the network to focus on recovering missing information and correctin
 
 ## Model Architecture
 
-The proposed model, NAFNetSR, contains the following major components:
+The proposed model, NAFNetSR
 
-Input convolution
 
-NAFNet encoder
+<img width="659" height="590" alt="image" src="https://github.com/user-attachments/assets/bedc3bc7-820c-4e09-8da0-62fb91a7ec95" />
 
-NAFBlocks
 
-Progressive feature downsampling
 
-Bottleneck / middle NAFBlocks
+## Training Strategy
 
-Decoder with skip connections
-
-2× PixelShuffle upsampling
-
-Global residual reconstruction
-
-Output reconstruction layer
-
-NAFBlocks
-
-NAFBlocks are used for efficient feature extraction and refinement.
-
-The blocks incorporate operations such as:
-
-Normalization
-
-Depthwise convolution
-
-SimpleGate activation
-
-Simplified channel attention
-
-Residual connections
-
-## Dataset
-
-The model is trained using paired degraded and ground-truth images.
-
-Dataset Component	Description
-NoisyLR	Degraded low-resolution input image
-GT	Ground-truth high-resolution image
-Dataset Split
-Split	Number of Images
-Training	2,880
-Validation	320
-Testing	400
-Total	3,600
+The model is trained using paired images:
 ```
-Input / Output
-NoisyLR Image
-     │
-     ▼
-   NAFNetSR
-     │
-     ▼
-Restored Image
 
-128 × 128  ──►  2× SR  ──►  256 × 256
+NoisyLR Image  ─────────►  Model  ─────────►  Restored Image
+                                                   │
+                                                   ▼
+                                           Ground Truth Image
 ```
-The model operates on single-channel grayscale inspection images.
-
-### Data Augmentation
-
-The training pipeline applies lightweight spatial augmentation to improve generalization.
-
-Augmentations
-
-Horizontal flipping
-
-Random 90° rotations
-
-These transformations increase the effective diversity of the training samples while preserving the underlying image structures.
+The training objective is to minimize the difference between the restored output and the ground-truth image.
 
 ### Loss Function
 
-The final model uses a composite restoration loss:
+A composite loss is used to balance pixel-level accuracy, structural similarity and perceptual quality.
 
+#### 1. L1 Loss
+
+L1 loss measures the pixel-wise difference between the predicted image and the ground truth.
+
+L1 = |Restored Image - Ground Truth|
+
+It helps the model maintain accurate pixel reconstruction and reduces large restoration errors.
+
+#### 2. SSIM Loss
+
+Structural Similarity is used to encourage preservation of image structures such as:
+
+Edges
+Patterns
+Fine semiconductor structures
+Local contrast
+
+#### 3. LPIPS Loss
+
+LPIPS is incorporated to measure perceptual similarity between the restored image and ground truth.
+
+It helps improve the visual quality of reconstructed structures while complementing pixel-level losses.
+
+Composite Objective
 Total Loss =
-    0.6 × L1 Loss
-  + 0.2 × SSIM Loss
-  + 0.2 × LPIPS Loss
-    
-#### Composite Loss
+    α × L1 Loss
+  + β × SSIM Loss
+  + γ × LPIPS Loss
 
-Each loss captures a different aspect of image quality:
+The loss components are combined to balance:
 
-L1 encourages accurate pixel reconstruction.
-SSIM helps preserve structural information.
-LPIPS encourages perceptually similar results.
+Pixel Fidelity + Structural Similarity + Perceptual Quality
 
-Combining them provides a balance between pixel fidelity, structural preservation, and perceptual quality.
+## Dataset
 
-## Training Configuration
+The project uses paired semiconductor inspection images.
 
-Parameter	Value
-Framework	PyTorch
-Architecture	NAFNetSR
-Optimizer	Adam
-Epochs	40
-Batch Size	16
-Scheduler	Cosine Annealing
-Loss	L1 + SSIM + LPIPS
-Super-Resolution Scale	2×
-Device	CUDA GPU / CPU fallback
-Checkpoint Selection	Best Validation PSNR
+#### Ground Truth
 
-The best-performing checkpoint is selected according to validation PSNR during training.
+Ground-truth images represent clean, full-resolution inspection images.
+
+Supported target resolutions include approximately:
+
+256 × 256
+512 × 512
+
+#### Degraded Input
+
+The degraded images contain combinations of:
+
+#### Noise
+Reduced spatial resolution
+Fine-detail loss
+
+Typical degraded dimensions are approximately:
+
+128 × 128
+256 × 256
+
+The model reconstructs the corresponding full-resolution output.
+
+
+## Training
+
+The training pipeline can be reproduced using:
+
+python train.py
+
+The training script performs the following steps:
+```
+
+Load Dataset
+     │
+     ▼
+Preprocess Images
+     │
+     ▼
+Create Training Batches
+     │
+     ▼
+Forward Pass
+     │
+     ▼
+Calculate L1 + SSIM + LPIPS Loss
+     │
+     ▼
+Backpropagation
+     │
+     ▼
+Optimizer Update
+     │
+     ▼
+Validation
+     │
+     ▼
+Save Best Checkpoint
+```
+
+Training configuration such as batch size, learning rate, number of epochs and checkpoint path should be specified in the training script.
+
+## Results
+
+Our model compare different loss configurations to determine the most suitable restoration objective.
+
+| Configuration | Epochs | PSNR |
+|---|---:|---:|
+| L1-only | 40 | **28.533 dB** |
+| L1 + SSIM + LPIPS (0.6/0.2/0.2) | 40 | 27.752 dB |
+| L1 + SSIM (0.9/0.1) | 15 | 28.131 dB |
+| L1 + SSIM + LPIPS (0.75/0.15/0.10) | 15 | 27.720 dB |
