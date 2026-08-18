@@ -201,3 +201,26 @@ Our model compare different loss configurations to determine the most suitable r
 | Configuration | PSNR | SSIM | LPIPS |
 |---|---:|---:|---:|
 | L1 + SSIM + LPIPS (0.6/0.2/0.2) | 27.917 | 0.7655 | 0.1360 |
+
+## Inference Efficiency
+
+Inference efficiency is important for semiconductor inspection applications because restoration must be practical for large numbers of inspection images.The implementation is designed to support GPU inference.
+
+During evaluation, the following can be reported:
+
+#### Inference Time / Image:
+133.2 ms
+
+#### Model Size:
+ ~12.6 MB
+
+## Technology Stack
+
+ <img width="699" height="636" alt="image" src="https://github.com/user-attachments/assets/0ae312b6-e303-481f-8afd-2c26efbb7bd4" />
+
+ ## Restoration result
+
+ <img width="1600" height="800" alt="image" src="https://github.com/user-attachments/assets/48982aa0-3742-4253-8d8b-0f352becbe31" />
+
+
+The proposed model produces clearer and higher-resolution images from degraded inputs by reducing noise and recovering fine structural details. The restored outputs show improved visual quality, sharpness, and structural consistency compared with the degraded images.
