@@ -1,4 +1,5 @@
 # Semiconductor-image-restoration
+# TEAM NAME: HackMOS
 
 A NAFNet-based image restoration network enhanced with 2× PixelShuffle super-resolution to remove degradation and recover fine image details.
 
