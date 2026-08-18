@@ -1,0 +1,2 @@
+test_output/*.npy filter=lfs diff=lfs merge=lfs -text
+test_output.zip filter=lfs diff=lfs merge=lfs -text
