@@ -198,9 +198,6 @@ Training configuration such as batch size, learning rate, number of epochs and c
 
 Our model compare different loss configurations to determine the most suitable restoration objective.
 
-| Configuration | Epochs | PSNR |
-|---|---:|---:|
-| L1-only | 40 | **28.533 dB** |
-| L1 + SSIM + LPIPS (0.6/0.2/0.2) | 40 | 27.752 dB |
-| L1 + SSIM (0.9/0.1) | 15 | 28.131 dB |
-| L1 + SSIM + LPIPS (0.75/0.15/0.10) | 15 | 27.720 dB |
+| Configuration | PSNR | SSIM | LPIPS |
+|---|---:|---:|---:|
+| L1 + SSIM + LPIPS (0.6/0.2/0.2) | 27.917 | 0.7655 | 0.1360 |
